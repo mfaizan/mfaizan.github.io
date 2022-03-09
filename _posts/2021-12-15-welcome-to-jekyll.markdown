@@ -1,5 +1,5 @@
 ---
-title: A Quick Tour of Tensors
+title: Why Tensors? A Beginner's Perspective
 layout: default
 date: 2022-03-08
 keywords: tensors
@@ -11,7 +11,9 @@ I've been working through Leonard Susskind's The Theoretical Minimum course, and
 
 Most commonly, a tensor is defined as being anything that transforms like a tensor. Specifically, a tensor $T$ is a bunch of numbers, one for each coordinate (in whatever coordinate system you're using), such that if you change coordinates from $x$ to $x'$, the components of $T$ (i.e., the numbers that make up $T$) transform according to the tensor transformation law.
 
-$$ T^\nu = \frac{\delta x'_\nu}{\delta x_\mu}T^\mu $$
+$$ T'^\nu = \frac{\delta x'_\nu}{\delta x_\mu}T^\mu $$
+
+Where $\nu$ and $\mu$ label indices of $T'$ and $T$ (both of rank 1 - this isn't the more general transformation law), respectively.
 
 I don't want to dig into this too much for now, because although this is the definition that tends to be the most useful in practice, I haven't found it too helpful for building more intuition for where tensors come from. That said, this definition does point to something crucial - transformations. 
 
@@ -36,7 +38,7 @@ So by looking at the tensor transformation law given above, it seems reasonable 
 
 It turns out that there is another definition of tensors that is equivalent to the one given above. Specifically, a tensor is something that takes a bunch of vectors and spits out a real number. This still sounds fairly abstract, so let's drill into a few examples to see why converting vectors into real numbers might be a useful thing to do.
 
-Let's start with measurements of distance. Suppose that you see an object move from position $x_0$ at $t_0$ to $x_1$ at $t_1$. From your perspective, $dt$, the change in time is $t_1 - t_0$, and $dx$, the change in the x position of the object, is $x_1 - x_0$. We can build a vector out of these measurements: $\begin{bmatrix} ds \\ dt \end{bmatrix}$.
+Let's start with measurements of distance. Suppose that you see an object move from position $x_0$ at $t_0$ to $x_1$ at $t_1$. From your perspective, $dt$, the change in time is $t_1 - t_0$, and $dx$, the change in the position of the object, is $x_1 - x_0$. We can build a vector out of these measurements: $\begin{bmatrix} ds \\ dt \end{bmatrix}$.
 
 Now suppose that there's another observer also looking at that object, but that observer is moving at nearly the speed of light. When this observer tries to build a vector recording their measurements, they'll record a much smaller value of $dt$, since clocks slow down as you approach the speed of light, and also a smaller value of $ds$ since distances contract.
 
@@ -52,22 +54,19 @@ On the other hand, from the point of view of the magnet, the magnetic field crea
     <img src="/assets/magnet.png"
          style="width: 40%; height: 40%; display: block; margin: 0 auto;"/>
     <div class='caption'>
-        <span class='caption-label'>Figure 1.</span> A point can be represented
-	in terms of its cartesian coordinates, $x_0$ and $y_0$, or polar coordinates, $r_0$ and $\theta_0$. 
-	The coordinates are different depending on what coordinate system is used, but any set of physical laws
-	but produce the correct results in every coordinate system.
+        <span class='caption-label'>Figure 2.</span> An example of how different physical observers can interpret the same phenomena in different ways. A moving magnet thinks that its magnetic field is interacting with a moving wire to produce a current. The wire, on the other hand, would say that the moving magnet creates an electric field, which creates a current.
     </div>
 </div>
 
 Again, it turns out there's a way to bring these two different descriptions of the same reality together. It turns out that $\textbf{E}^2 - \textbf{B}^2$, where $\textbf{E}$ is the electric field and $\textbf{B}$ is the magnetic field, is always the same in every coordinate frame.
 
-So there's the same pattern again. Observers can record different measurements of time and distance, but agree on the value of ds. Observers can record different measurements of the electric and magnetic fields, but all agree on the value of $\textbf{E}^2 - \textbf{B}^2$. There are more examples of this - energy and momentum, and the metric tensor - just to name a few.
+So there's the same pattern again. Observers can record different measurements of time and distance, but agree on the value of $ds$. Observers can record different measurements of the electric and magnetic fields, but all agree on the value of $\textbf{E}^2 - \textbf{B}^2$. There are more examples of this - energy and momentum, and the metric tensor - just to name a few.
 
 This is the core problem that tensors allow us to solve - they represent a rule that maps vectors, or sets of 'related' measurements (for our purposes), to something called a scalar - a number that all observers agree on. A tensor links the components of those vectors to something that is more fundamental. We can then build physical laws that take this property into account, and these laws will then be applicable in all frames of reference.
 
-Introducing some notation, we represent a tensor T as a map between a bunch of vectors V to a scalar, which is a real number:
+Introducing some notation, we represent a tensor $T$ as a map between a bunch of vectors $V$ to a scalar, which is a real number:
 
-$$ T : V \times V \times \dots \to \textbf{R} \tag{1} $$
+$$ T : V \times V \times \dots \to \textbf{R} $$
 
 We're still missing one key piece of the puzzle. It just so happens that most mappings between vectors and scalars that we find in physics are linear. This completes the definition of tensors - they aren't just any rule for taking vectors and spitting out scalars, but they are also linear. This property has really interesting implications for how we work with tensors. 
 
@@ -75,16 +74,13 @@ Let's start with our definition of a tensor - a linear rule for mapping a set of
 
 Now let's try to build a new machine given the one we already have, $T$. Let's call this new machine $T'$. The way this machine will work is that when we first build it, we'll 'store' or 'hide' some vector, let's call it $V_1$, inside it. It also has its own copy of $T$.
 
-Then, whenever this machine is given another vector (of type $V$), let's call this vector $V_2$, it will just take $T$, feed it $V_1$ (which was hidden inside $T'$) and $V_2$. $T$ takes two vectors, so it will output a scalar, which $T$ will then output as well.
+Then, whenever this machine is given another vector (of type $V$), let's call this vector $V_2$, it will just take $T$, feed it $V_1$ (which was hidden inside $T'$) and $V_2$. $T$ takes two vectors, so it will output a scalar, which $T'$ will then output as well.
 
 <div class='figure'>
     <img src="/assets/tensor.png"
          style="width: 40%; height: 40%; display: block; margin: 0 auto;"/>
     <div class='caption'>
-        <span class='caption-label'>Figure 1.</span> A point can be represented
-	in terms of its cartesian coordinates, $x_0$ and $y_0$, or polar coordinates, $r_0$ and $\theta_0$. 
-	The coordinates are different depending on what coordinate system is used, but any set of physical laws
-	but produce the correct results in every coordinate system.
+        <span class='caption-label'>Figure 3.</span> Given $T$, we can construct a new tensor $T'$ that takes in a single vector V instead of two vectors.
     </div>
 </div>
 
@@ -94,21 +90,21 @@ There's a nice way to categorize tensors. The original tensor, $T$, is considere
 
 $$ T : V \times V \to \textbf{R} $$
 
-$$ T' : V \to \textbf{R} $$
+$$ T' : V \to \textbf{R} \tag{1} $$
 
 But what about the second number in that representation - where's that 0 coming from? It turns out that the new tensor we built, the (1, 0) tensor, is an element of a vector space - so it is a vector. A new kind of vector, that is different from the kinds of vectors that $T$ takes - let's call it $U$. So $U$ is two things: it is a tensor ($V \to R$), and it is also a vector.
 
-$$ U : V \to \textbf{R} $$
+$$ U : V \to \textbf{R} \tag {2} $$
 
 So far what we've done is taken $T$ and used it to build a $U$ vector. But what does $U$ have to do with $V$ and $T$?
 
-Now comes the crucial step - the vectors that $T$ consumes, $V$, can also be thought of as a rule that can take a $U$ vector and map it to a scalar by applying itself to it! So a $V$ can take a $U$, use equation (x) and just feed itself as input into the $U$, then output the scalar. So $V$, which was a vector, is also a tensor (i.e. a map between $U$ and $R$):
+Now comes the crucial step - the vectors that $T$ consumes, $V$, can also be thought of as a rule that can take a $U$ vector and map it to a scalar by applying itself to it! So a $V$ can take a $U$, use equation $(2)$ and just feed itself as input into the $U$, then output the scalar. So $V$, which was a vector, is also a tensor (i.e. a map between $U$ and $R$):
 
 $$ V : U \to \textbf{R} $$
 
 So $V$ takes a $U$ - which is a recipe to map a $V$ into a scalar - and then applies it to itself, giving a scalar. This is also a tensor! This would be considered a (0, 1) tensor - as it maps a single $U$ vector to a scalar.
 
-There's a symmetry between x and y. Given a $U$, we can convert it to a $V$, and vice versa. $U$ is called a dual vector or a covector of $U$. 
+There's a symmetry between $(1)$ and $(2)$. Given a $U$, we can convert it to a $V$, and vice versa. $U$ is called a dual vector or a covector of $U$. 
 
 This symmetry leads us to a final modification in the definition of tensors. Not only can a tensor take vectors $V$ as input, but also covectors. So any tensor $T$ is a linear map between a bunch of vectors and covectors to a scalar:
 
