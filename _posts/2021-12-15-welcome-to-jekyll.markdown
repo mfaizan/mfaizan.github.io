@@ -90,17 +90,17 @@ There's a nice way to categorize tensors. The original tensor, $T$, is considere
 
 $$ T : V \times V \to \textbf{R} $$
 
-$$ T' : V \to \textbf{R} \tag{1} $$
+$$ T' : V \to \textbf{R} $$
 
 But what about the second number in that representation - where's that 0 coming from? It turns out that the new tensor we built, the (1, 0) tensor, is an element of a vector space - so it is a vector. A new kind of vector, that is different from the kinds of vectors that $T$ takes - let's call it $U$. So $U$ is two things: it is a tensor ($V \to \textbf{R}$), and it is also a vector.
 
-$$ U : V \to \textbf{R} \tag {2} $$
+$$ U : V \to \textbf{R} \tag{1} $$
 
 So far what we've done is taken $T$ and used it to build a $U$ vector. But what does $U$ have to do with $V$ and $T$?
 
-Now comes the crucial step - the vectors that $T$ consumes, $V$, can also be thought of as a rule that can take a $U$ vector and map it to a scalar by applying itself to it! So a $V$ can take a $U$, use equation $(2)$ and just feed itself as input into the $U$, then output the scalar. So $V$, which was a vector, is also a tensor (i.e. a map between $U$ and $R$):
+Now comes the crucial step - the vectors that $T$ consumes, $V$, can also be thought of as a rule that can take a $U$ vector and map it to a scalar by applying itself to it! So a $V$ can take a $U$, use equation $(1)$ and just feed itself as input into the $U$, then output the scalar. So $V$, which was a vector, is also a tensor (i.e. a map between $U$ and $R$):
 
-$$ V : U \to \textbf{R} $$
+$$ V : U \to \textbf{R} \tag{2} $$
 
 So $V$ takes a $U$ - which is a recipe to map a $V$ into a scalar - and then applies it to itself, giving a scalar. This is also a tensor! This would be considered a (0, 1) tensor - as it maps a single $U$ vector to a scalar.
 
