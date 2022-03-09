@@ -32,7 +32,7 @@ The idea here is that we want to represent an object that doesn't depend on the 
     </div>
 </div>
 
-Think of converting units. Suppose that you weigh an object and find that it weights 100 kilograms, and you'd like to convert this to pounds. If we think of the units (kilograms/pounds) as a unit, then in a way we are changing the coordinate system used to make our measurement. However, converting units obviously doesn't make the object heavier, so to 'compensate' the fact that pounds are a larger unit than kilograms, we don't just leave the 100 there - we multiply it to make sure that the fundamental measurement doesn't change. This gives some idea of how transformations help ensure that we are coordinate invariant.
+Think of converting units. Suppose that you weigh an object and find that it weights 100 kilograms, and you'd like to convert this to pounds. If we think of the units (kilograms/pounds) as a unit, then in a way we are changing the coordinate system used to make our measurement. However, converting units obviously doesn't make the object lighter, so to 'compensate' the fact that pounds are a smaller unit than kilograms, we don't just leave the 100 there - we multiply it to make sure that the fundamental measurement doesn't change. This gives some idea of how transformations help ensure that we are coordinate invariant.
 
 So by looking at the tensor transformation law given above, it seems reasonable to guess that there is some notion of sameness involved. But why that specific transformation law - why must tensors transform in that way in order to preserve whatever object the tensor represents?
 
