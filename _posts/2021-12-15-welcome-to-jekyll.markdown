@@ -92,7 +92,7 @@ $$ T : V \times V \to \textbf{R} $$
 
 $$ T' : V \to \textbf{R} \tag{1} $$
 
-But what about the second number in that representation - where's that 0 coming from? It turns out that the new tensor we built, the (1, 0) tensor, is an element of a vector space - so it is a vector. A new kind of vector, that is different from the kinds of vectors that $T$ takes - let's call it $U$. So $U$ is two things: it is a tensor ($V \to R$), and it is also a vector.
+But what about the second number in that representation - where's that 0 coming from? It turns out that the new tensor we built, the (1, 0) tensor, is an element of a vector space - so it is a vector. A new kind of vector, that is different from the kinds of vectors that $T$ takes - let's call it $U$. So $U$ is two things: it is a tensor ($V \to \textbf{R}$), and it is also a vector.
 
 $$ U : V \to \textbf{R} \tag {2} $$
 
