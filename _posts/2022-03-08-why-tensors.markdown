@@ -32,7 +32,7 @@ The idea here is that we want to represent an object that doesn't depend on the 
     </div>
 </div>
 
-Think of converting units. Suppose that you weigh an object and find that it weights 100 kilograms, and you'd like to convert this to pounds. If we think of the units (kilograms/pounds) as a unit, then in a way we are changing the coordinate system used to make our measurement. However, converting units obviously doesn't make the object lighter, so to 'compensate' the fact that pounds are a smaller unit than kilograms, we don't just leave the 100 there - we multiply it to make sure that the fundamental measurement doesn't change. This gives some idea of how transformations help ensure that we are coordinate invariant.
+Think of converting units. Suppose that you weigh an object and find that it weights 100 kilograms, and you'd like to convert this to pounds. If we think of the units (kilograms/pounds) as a coordinate, then in a way we are changing the coordinate system used to make our measurement. However, converting units obviously doesn't make the object lighter, so to 'compensate' the fact that pounds are a smaller unit than kilograms, we don't just leave the 100 there - we multiply it to make sure that the fundamental measurement doesn't change. This gives some idea of how transformations help ensure that we are coordinate invariant.
 
 So by looking at the tensor transformation law given above, it seems reasonable to guess that there is some notion of sameness involved. But why that specific transformation law - why must tensors transform in that way in order to preserve whatever object the tensor represents?
 
@@ -104,7 +104,7 @@ $$ V : U \to \textbf{R} \tag{2} $$
 
 So $V$ takes a $U$ - which is a recipe to map a $V$ into a scalar - and then applies it to itself, giving a scalar. This is also a tensor! This would be considered a (0, 1) tensor - as it maps a single $U$ vector to a scalar.
 
-There's a symmetry between $(1)$ and $(2)$. Given a $U$, we can convert it to a $V$, and vice versa. $U$ is called a dual vector or a covector of $U$. 
+There's a symmetry between $(1)$ and $(2)$. Given a $U$, we can convert it to a $V$, and vice versa. $U$ is called a dual vector or a covector of $V$. 
 
 This symmetry leads us to a final modification in the definition of tensors. Not only can a tensor take vectors $V$ as input, but also covectors. So any tensor $T$ is a linear map between a bunch of vectors and covectors to a scalar:
 
