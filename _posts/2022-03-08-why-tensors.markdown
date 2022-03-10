@@ -40,7 +40,7 @@ It turns out that there is another definition of tensors that is equivalent to t
 
 Let's start with measurements of distance. Suppose that you see an object move from position $x_0$ at $t_0$ to $x_1$ at $t_1$. From your perspective, $dt$, the change in time is $t_1 - t_0$, and $dx$, the change in the position of the object, is $x_1 - x_0$. We can build a vector out of these measurements: $\begin{bmatrix} dx \\ dt \end{bmatrix}$.
 
-Now suppose that there's another observer also looking at that object, but that observer is moving at nearly the speed of light. When this observer tries to build a vector recording their measurements, they'll record a much smaller value of $dt$, since clocks slow down as you approach the speed of light, and also a smaller value of $ds$ since distances contract.
+Now suppose that there's another observer also looking at that object, but that observer is moving at nearly the speed of light. When this observer tries to build a vector recording their measurements, they'll record a much smaller value of $dt$, since clocks slow down as you approach the speed of light, and also a smaller value of $dx$ since distances contract.
 
 The problem for us is that we want a way of formulating the laws of physics that can be used to give the same results regardless of the frame of reference measurements are made in. This is tricky - since two observers can observe completely different values of $ds$ and $dt$ for the same object!
 
