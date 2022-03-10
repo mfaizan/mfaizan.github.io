@@ -38,7 +38,7 @@ So by looking at the tensor transformation law given above, it seems reasonable 
 
 It turns out that there is another definition of tensors that is equivalent to the one given above. Specifically, a tensor is something that takes a bunch of vectors and spits out a real number. This still sounds fairly abstract, so let's drill into a few examples to see why converting vectors into real numbers might be a useful thing to do.
 
-Let's start with measurements of distance. Suppose that you see an object move from position $x_0$ at $t_0$ to $x_1$ at $t_1$. From your perspective, $dt$, the change in time is $t_1 - t_0$, and $dx$, the change in the position of the object, is $x_1 - x_0$. We can build a vector out of these measurements: $\begin{bmatrix} ds \\ dt \end{bmatrix}$.
+Let's start with measurements of distance. Suppose that you see an object move from position $x_0$ at $t_0$ to $x_1$ at $t_1$. From your perspective, $dt$, the change in time is $t_1 - t_0$, and $dx$, the change in the position of the object, is $x_1 - x_0$. We can build a vector out of these measurements: $\begin{bmatrix} dx \\ dt \end{bmatrix}$.
 
 Now suppose that there's another observer also looking at that object, but that observer is moving at nearly the speed of light. When this observer tries to build a vector recording their measurements, they'll record a much smaller value of $dt$, since clocks slow down as you approach the speed of light, and also a smaller value of $ds$ since distances contract.
 
