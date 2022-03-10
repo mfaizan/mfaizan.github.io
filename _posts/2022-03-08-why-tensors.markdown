@@ -42,7 +42,7 @@ Let's start with measurements of distance. Suppose that you see an object move f
 
 Now suppose that there's another observer also looking at that object, but that observer is moving at nearly the speed of light. When this observer tries to build a vector recording their measurements, they'll record a much smaller value of $dt$, since clocks slow down as you approach the speed of light, and also a smaller value of $dx$ since distances contract.
 
-The problem for us is that we want a way of formulating the laws of physics that can be used to give the same results regardless of the frame of reference measurements are made in. This is tricky - since two observers can observe completely different values of $ds$ and $dt$ for the same object!
+The problem for us is that we want a way of formulating the laws of physics that can be used to give the same results regardless of the frame of reference measurements are made in. This is tricky - since two observers can observe completely different values of $dx$ and $dt$ for the same object!
 
 There's an interesting result in special relativity that says that for any measurements of $dx$ and $dt$, although two observers might get completely different values, they'll always agree on the value of $dx^2 - dt^2$. We call this value $ds$, or the proper distance traversed by the object, and it is invariant in all frames of reference. So if we come up with laws that only depend on $ds$, then they will also be valid in all frames of reference!
 
