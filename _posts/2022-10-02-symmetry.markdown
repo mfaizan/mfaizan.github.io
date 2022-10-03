@@ -1,5 +1,5 @@
 ---
-title: Why Is Symmetry So Important in Particle Physics?
+title: Why Is Group Theory So Important in Particle Physics?
 layout: default
 date: 2022-10-02
 keywords: symmetry
@@ -7,15 +7,15 @@ published: true
 mathjax: yes
 ---
 
-I've heard symmetry commonly referred to as one of the central organizing principles in particle physics, and this got me interested in diving in and trying to get an idea of what exactly makes this concept so crucial and useful. What's incredibly surprising is just how constraining symmetry is - there really isn't as much leeway as I thought when it comes to building physical theories! Symmetry principles govern what particles must exist [1], how particles must be represented, how these particles must transform [2], and even what quantities are conserved (energy, momentum, and so on) [3], and I'm sure there are many more.
+I've heard group theory commonly referred to as one of the central organizing themes in particle physics, and this got me interested in diving in and trying to get an idea of what exactly makes this fairly abstract set of ideas so crucial and useful. What's incredibly surprising is just how constraining the symmetries encoded by group theory are - there really isn't as much leeway as I thought when it comes to building physical theories! These principles govern what particles must exist [1], how particles must be represented, how these particles must transform [2], and even what quantities are conserved (energy, momentum, and so on) [3], and I'm sure there are many more.
 
-I thought I'd summarize what I've learned about this topic and share it in the hopes that others might also find this useful. To keep things manageable I've decided to focus primarily on the first aspect - how symmetry principles govern the structure of the Standard Model of particle physics by almost 'requiring' certain particles (termed gauge bosons) to exist. This was one of my main motivations in diving into this subject - you'll commonly hear that the symmetry group of the Standard Model is $U(1) \times SU(2) \times SU(3)$, and I wanted to understand what this meant.
+I thought I'd summarize what I've learned about this topic and share it in the hopes that others might also find this useful. To keep things manageable I've decided to focus primarily on the first aspect - how symmetry principles govern the structure of the Standard Model of particle physics by almost 'requiring' certain particles (termed gauge bosons) to exist, and how these are expressed in the language of group theory. This was one of my main motivations in diving into this subject - you'll commonly hear that the symmetry group of the Standard Model is $U(1) \times SU(2) \times SU(3)$, and I wanted to understand what this meant.
 
-The target audience of this post is someone who is familiar with elementary calculus, but not much beyond that. I'll try to give an idea of what gauge invariance is all about (in a non-rigorous way), what it has to do with symmetry, and how these principles can govern the structure of a theory.
+The target audience of this post is someone who is familiar with elementary calculus, but not much beyond that. I'll try to give an idea of what gauge invariance is all about (in a non-rigorous way), what it has to do with symmetry, and how these principles can govern the structure of a theory. I won't dive too much into results in group theory, but provide some motivation for how groups are linked to particles and provide a framework for expressing symmetries of nature.
 
 ##### Fields and Lagrangians
 
-Before discussing symmetries, we first need a framework that allows us to express physical theories and allows us to explore the effect of transformations (in our case, symmetry transformations) on these theories. We'll start with a quick overview of one such framework - the Lagrangian formulation of mechanics.
+Before discussing groups and symmetries, we first need a framework that allows us to express physical theories and allows us to explore the effect of transformations (in our case, symmetry transformations) on these theories. We'll start with a quick overview of one such framework - the Lagrangian formulation of mechanics.
 
 The Lagrangian framework uses the fact that all physical theories can be described using what's called an action principle. The idea here is that each physical theory consists of a way to take some configuration of objects (particles, fields, etc.) and assign that configuration a number - and that's really it. This function is called the Lagrangian. For example, in classical mechanics, the Lagrangian of a particle with position $x(t)$ is:
 
