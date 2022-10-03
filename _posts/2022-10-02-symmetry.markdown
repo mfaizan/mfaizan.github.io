@@ -13,7 +13,7 @@ I thought I'd summarize what I've learned about this topic and share it in the h
 
 The target audience of this post is someone who is familiar with elementary calculus, but not much beyond that. I'll try to give an idea of what gauge invariance is all about (in a non-rigorous way), what it has to do with symmetry, and how these principles can govern the structure of a theory.
 
-### Fields and Lagrangians
+##### Fields and Lagrangians
 
 Before discussing symmetries, we first need a framework that allows us to express physical theories and allows us to explore the effect of transformations (in our case, symmetry transformations) on these theories. We'll start with a quick overview of one such framework - the Lagrangian formulation of mechanics.
 
@@ -21,7 +21,7 @@ The Lagrangian framework uses the fact that all physical theories can be describ
 
 $$ L(x(t)) = \frac{1}{2}m\left[\delta_tx(t)\right]^2 $$
 
-Where $\delta_tx(t)$ represents the time derivative of $x(t)$, which is the velocity. So the theory here - classical mechanics - will take the configuration of a particle and assign it the number given by $L$. The principle, then, is that the particles and fields that were used to build up the theory will move in a way that minimizes or maximizes the sum of $L$ over the path taken by the system. So if we know that the particle was at position $x_0$ and $t = 0$ and $x_1$ at $t = 1$, the path the particle takes to get from the first state to the last will be the path that minimizes $L$.
+Where $\delta_tx(t)$ represents the time derivative of $x(t)$, which is the velocity. So the theory here - classical mechanics - will take the configuration of a particle and assign it the number given by $L$. The principle, then, is that the particles and fields that were used to build up the theory will move in a way that minimizes or maximizes the sum of $L$ over the path taken by the system. So if we know that the particle was at position $x_0$ at $t = 0$ and $x_1$ at $t = 1$, the path the particle takes to get from the first state to the last will be the path that minimizes $L$.
 
 All known theories of physics - from classical mechanics all the way to general relativity quantum field theory - can be written in this way: a collection of objects and a recipe to build a Lagrangian from those objects, with the movement of those objects determined by a path that minimizes the Lagrangian. This is a surprising fact, and it provides us a convenient framework for expressing various theories, and more importantly for us, examining the effects of various symmetries on the dynamics of a theory.
 
@@ -47,7 +47,7 @@ The $\delta_t\phi^\star \delta_t\phi$ term represents the kinetic energy of the 
 
 One interesting observation about Lagrangians is that any term of the form $V(\phi)$ represents potential energy. Since there are no time or space derivatives involved, the term indicates the influence of the 'position' of the field itself, instead of the effects of how its changing in space or time (which would represent kinetic energy).
 
-### Gauge Invariance
+##### Gauge Invariance
 
 We're now ready to start discussing symmetry, and how it affects our theory.
 
@@ -69,7 +69,7 @@ $$ \delta_t\left[e^{i\theta}\phi\right]^\star = e^{-i\theta}\delta_t\phi^\star $
 
 The $e^{i\theta}$ and $e^{-i\theta}$ terms cancel out, leaving the Lagrangian the same. This makes some sense intuitively - if two people decide to 'measure' complex numbers differently, with one person using a coordinate system that's rotated relative to the other, this shouldn't change what they observe.
 
-Now let's take this a step further. In the previous example, we rotated the field at all points by some angle. But why do we need to rotate the field the same way everywhere? What if we measure things at point with one coordinate system, but measure them using a different coordinate system that's rotated. Although it's hard to imagine why anyone would want to do this, one would still expect that this shouldn't affect the actual physics predicted by the theory. So instead of using $\theta$ like we did earlier, we'll now use a function $\theta(t)$.
+Now let's take this a step further. In the previous example, we rotated the field at all points by some angle. But why do we need to rotate the field the same way everywhere? What if we measure things at one point with one coordinate system, but measure them at a different point using a different coordinate system that's rotated. Although it's hard to imagine why anyone would want to do this, one would still expect that this shouldn't affect the actual physics predicted by the theory. So instead of using $\theta$ like we did earlier, we'll now use a function $\theta(t)$.
 
 The Lagrangian involves derivatives of the fields, so let's take derivatives.
 
@@ -109,7 +109,7 @@ $$ D\phi(x) = \delta\phi + iA\phi $$
 
 Which contains the exact term that we added to our Lagrangian to make it gauge invariant.  This shows that the new field is a tool that allows us to sensibly take the derivative of our field.
 
-### Groups and Other Symmetries
+##### Groups and Other Symmetries
 
 So far, we've considered the implications of having a theory that is symmetric in terms of rotations - we're allowed to rotate individual fields. But we can go further - what if our theory contained different types of fields, but was symmetric in terms of rotations across these fields. For example, suppose you have a model where you have two fields, $\phi_1$ and $\phi_2$. You make an observation - that some particle exists in $\phi_1$, but none in $\phi_2$. In a way, $\phi_1$ and $\phi_2$ are being used as coordinates - you specify your observation of some particles by stating which fields they are represented by.
 
@@ -133,7 +133,7 @@ This provides us a convenient way to label symmetry operations. Rotations in the
 
 Earlier, we tried making a $U(1)$ transformation to our Lagrangian and found that an additional field becomes necessary as a result of this symmetry. If we have two fields in our Lagrangian that have $SU(2)$ symmetry (i.e., they can be rotated), is that automatically gauge invariant? Or do we need to add more fields as well, just like we had to in the $U(1)$ case?
 
-We still have the same problem as before - we can't compare field in neighboring points when taking the derivative, since the definition of each field is different - it is rotated at different points. Again, we introduce a field $A$ that helps us compare fields at different points.
+We still have the same problem as before - we can't compare fields at neighboring points when taking the derivative, since the definition of each field is different - it is rotated at different points. Again, we introduce a field $A$ that helps us compare fields at different points.
 
 Now what exactly is $A$ doing? It's modifying our field in a way that undoes the changes in the symmetry parameter - so it also represents a symmetry transformation. An important observation is that symmetry operations can generally be broken down into smaller, more fundamental operations. For example, consider the group of rotations in three dimensions. Each small rotation in three dimensions can be written as the sum of a small rotation along the $x$ axis, a small rotation along the $y$ axis, and a small rotation along the $z$ axis. These smaller rotations are called generators of the rotation group.
 
