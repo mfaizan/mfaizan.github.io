@@ -1,5 +1,5 @@
 ---
-title: Why is Symmetry so Important in Particle Physics?
+title: Why Is Symmetry So Important in Particle Physics?
 layout: default
 date: 2022-10-02
 keywords: symmetry
