@@ -1,7 +1,7 @@
 ---
 title: Why Are Sines and Cosines Used?
 layout: default
-date: 2022-04-02
+date: 2023-04-02
 keywords: symmetry
 published: true
 mathjax: yes
@@ -27,27 +27,48 @@ The idea is that the dot product between two vectors should give us some measure
     </div>
 </div>
 
-
 One shortcoming of this approach is that it doesn't account for positions - two vectors will have the same dot product, regardless of how close they are to each other in the input sequence. What we want is a way to modify each vector in a way that incorporates information about its position. 
 
 ##### Encoding Positions
-Let's assume that $\mathbf{x_m}$, which is some input vector that occupies position $m$, is a two dimensional vector. Then, we can represent it as a complex number:
+To make things simpler, let's assume that $\mathbf{x_m}$, which is some input vector that occupies position $m$, is a two dimensional vector. Then, we can represent it as a complex number:
 
-$$ \mathbf{x_m} = | \mathbf{x_m}|e^{i\theta_m} $$
+$$ \mathbf{x_m} = | \mathbf{x_m}|e^{i\theta_m} \tag{1} $$
 
 Let's define $f(\mathbf{x}, m)$ as a function that takes a vector and its position, and modifies the vector in a way that incorporates information about its position.
 
-What properties would we like this function $f$ to have? Suppose that we have two vectors, one at position $m$ and one at position $n$. When we apply $f$ to both vectors to encode position information and then take the dot product of these two vectors, we'd like the result to depend on the distance between the two vectors, i.e., $m - n$, and not on $m$ and $n$ themselves. So we'd like:
+What properties would we like this function $f$ to have? Suppose that we have two vectors, one at position $m$ and one at position $n$. When we apply $f$ to both vectors to encode position information and then take the dot product of these two vectors (as part of the attention operation discussed earlier), we'd like the result to depend on the distance between the two vectors, i.e., $m - n$, and not on $m$ and $n$ themselves. So we'd like:
 
-$$ f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) = g(\mathbf{x_m},\mathbf{x_n}, m - n) $$
+$$ f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) = g(\mathbf{x_m},\mathbf{x_n}, m - n) \tag{2} $$
 
-So $f$ should modify the original vectors in a way that when we take the product of the results, we end up getting a function that depends on the difference of the position parameters $m$ and $n$. Note that the exponential function possesses this property:
+So $f$ should modify the original vectors in a way that when we take the product of the results, we end up getting a function that depends on the difference of the position parameters $m$ and $n$. 
+
+##### Exponentials
+
+Note that the exponential function has a property that seems similar to what we want:
 
 $$ e^me^n = e^{m+n} $$
 
-Now we don't want $f$ to just multiply $\mathbf{x_m}$ by $e^m$, since that would cause the magnitude of the vector to grow very quickly with position. Instead, let's try multiplying by $e^{im\theta}$ since its magnitude is unity - we won't cause the magnitude of the vector to change. We've also introduced a frequency parameter, $\theta$, which isn't necessary at this point but will turn out to be useful later.
+Continuing down this path - now we don't want $f$ to just multiply $\mathbf{x_m}$ by $e^m$, since that would cause the magnitude of $f$ to grow very quickly with position (i.e, with $m$). Instead, let's try multiplying by $e^{im\theta}$ since its magnitude is unity - we won't cause the magnitude of the vector to change. Our candidate $f$ is:
 
-One question is - why are we trying out multiplication, as opposed to having $f$ be some more complicated function of $x$ and $m$? 
+$$ f(\mathbf{x_m}) = \mathbf{x_m}e^{im\theta} $$
+
+We've also introduced a frequency parameter, $\theta$, which isn't necessary at this point but will turn out to be useful later.
+
+One question is - why are we trying out multiplication, as opposed to having $f$ be some more complicated function of $x$ and $m$? The intuition here goes back to the structure of Transformer networks - since the $\mathbf{q}$, $\mathbf{k}$, and $\mathbf{v}$ vectors are all linear transformations of the input vectors, the idea is that maybe if $f$ is a linear transformation of its input, it'll be easier for the network to learn.
+
+Now that we have a candidate for $f$, let's verify that it really does satisfy property $(2)$. Recall the dot product of two vectors represented as complex numbers is:
+
+$$ \mathbf{x_m} \cdot \mathbf{x_n} = \Re[\mathbf{x_m}\mathbf{x_n}] $$
+
+If we apply $f$ to both \mathbf{x_m} and \mathbf{x_n}, then this becomes:
+
+$$ \begin{align} f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) &= \Re[\mathbf{x_m}\mathbf{x_n}e^{i(m - n)\theta}] \\
+&= \Re[|\mathbf{x_m}||\mathbf{x_n}|e^{i(\theta_m - \theta_n + [m - n]\theta)}] \\
+&=  |\mathbf{x_m}||\mathbf{x_n}| \cos(\theta_m - \theta_n + [m - n]\theta)\end{align} $$
+
+Which has the property we wanted - the result is only a function of $m - n$, and not of $m$ or $n$ by themselves.
+
+##### From Exponentials to Sinusoidal Functions
 
 So now we have a candidate for $f$ when $\mathbf{x}$ is a complex number. What about the case where $\mathbf{x}$ isn't represented as a complex number, but as a vector of two real numbers instead? In that case, we can use the fact that multiplying a complex number by $e^i\theta$ is the same as multiplying its components by a rotation matrix:
 
@@ -58,17 +79,16 @@ $$ \begin{pmatrix}
 
 So far we've assumed that $\mathbf{x}$ only has two dimensions. It turns out that we can easily extend this idea to the general case - we just break up the dimensions into pairs, and apply the two dimensional transformation to each pair. 
 
-This leads to another issue. Recall that the idea behind making f linear was that the network should be able to easily represent vectors at different positions. But since $f$ is defined as a multiplication by a periodic function, it'll actually lead to the same representation for points at varying distances. Making \theta really large would allow the network to easily distinguish between positions closer together but not those that are farther apart, and making it small would lead to the opposite problem - positions close to one another might not lead to enough of a change in $f$ to allow the network to easily distinguish them.
+This leads to another issue. Recall that the idea behind making f linear was that the network should be able to easily represent vectors at different positions. But since $f$ is defined as a multiplication by a periodic function, it'll actually lead to the same representation for points at varying distances. Making $\theta$ really large would allow the network to easily distinguish between positions closer together but not those that are farther apart, and making it small would lead to the opposite problem - positions close to one another might not lead to enough of a change in $f$ to allow the network to easily distinguish them.
 
 <div class='figure'>
     <img src="/assets/cosine.png"
          style="width: 80%; height: 80%; display: block; margin: 0 auto;"/>
     <div class='caption'>
-        <span class='caption-label'>Figure 3.</span> We can map the group of rotations in the plane to the group of complex matrices of magnitude 1.
-    </div>
+        <span class='caption-label'>Figure 2.</span> Transformations using sinusoidal functions will have the same representation for different distances.    </div>
 </div>
 
-One way to deal with this is to use different values of \theta for each pair of dimensions. So some dimensions will encode shorter distance information, and some will encode longer distance information. Putting it all together, we get the following transformation:
+One way to deal with this is to use different values of $\theta$ for each pair of dimensions. So some dimensions will encode shorter distance information, and some will encode longer distance information. Putting it all together, we get the following transformation:
 
 $$ f(\mathbf{x}, m) = \mathbf{x}\begin{pmatrix}
 \cos m\theta_1 & -\sin m\theta_1 & 0 & 0 & \cdots & 0 & 0 \\
@@ -79,4 +99,6 @@ $$ f(\mathbf{x}, m) = \mathbf{x}\begin{pmatrix}
 0 & 0 & 0 & 0 & \cdots & \cos m\theta_{d/2} & -\sin m\theta_{d/2} \\
 0 & 0 & 0 & 0 & \cdots & \sin m\theta_{d/2} & \cos m\theta_{d/2}
 \end{pmatrix} $$
+
+In summary - fairly simple considerations around properties we'd like the dot product to have (i.e., only being a function of $m - n$) and a preference for linear transformations leads to an effective positional embedding scheme that uses sinusoidal functions and generalizes to any number of dimensions - which is quite remarkable.
 
