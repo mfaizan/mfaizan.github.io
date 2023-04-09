@@ -58,11 +58,11 @@ One question is - why are we trying out multiplication, as opposed to having $f$
 
 Now that we have a candidate for $f$, let's verify that it really does satisfy property $(1)$. Recall the dot product of two vectors represented as complex numbers is:
 
-$$ \mathbf{x_m} \cdot \mathbf{x_n} = \Re[\mathbf{x_m}\mathbf{x_n}] $$
+$$ \mathbf{x_m} \cdot \mathbf{x_n} = \Re[\mathbf{x_m}\mathbf{x^\star_n}] $$
 
 If we apply $f$ to both $\mathbf{x_m}$ and $\mathbf{x_n}$, then this becomes:
 
-$$ \begin{align} f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) &= \Re[\mathbf{x_m}\mathbf{x_n}e^{i(m - n)\theta}] \\
+$$ \begin{align} f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) &= \Re[\mathbf{x_m}\mathbf{x^\star_n}e^{i(m - n)\theta}] \\
 &= \Re[|\mathbf{x_m}||\mathbf{x_n}|e^{i(\theta_m - \theta_n + [m - n]\theta)}] \\
 &=  |\mathbf{x_m}||\mathbf{x_n}| \cos(\theta_m - \theta_n + [m - n]\theta)\end{align} $$
 
