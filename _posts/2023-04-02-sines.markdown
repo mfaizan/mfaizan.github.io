@@ -1,5 +1,5 @@
 ---
-title: Why Are Sines and Cosines Used?
+title: Why Are Sines and Cosines Used For Positional Encoding?
 layout: default
 date: 2023-04-02
 keywords: symmetry
@@ -32,13 +32,13 @@ One shortcoming of this approach is that it doesn't account for positions - two 
 ##### Encoding Positions
 To make things simpler, let's assume that $\mathbf{x_m}$, which is some input vector that occupies position $m$, is a two dimensional vector. Then, we can represent it as a complex number:
 
-$$ \mathbf{x_m} = | \mathbf{x_m}|e^{i\theta_m} \tag{1} $$
+$$ \mathbf{x_m} = | \mathbf{x_m}|e^{i\theta_m} $$
 
 Let's define $f(\mathbf{x}, m)$ as a function that takes a vector and its position, and modifies the vector in a way that incorporates information about its position.
 
 What properties would we like this function $f$ to have? Suppose that we have two vectors, one at position $m$ and one at position $n$. When we apply $f$ to both vectors to encode position information and then take the dot product of these two vectors (as part of the attention operation discussed earlier), we'd like the result to depend on the distance between the two vectors, i.e., $m - n$, and not on $m$ and $n$ themselves. So we'd like:
 
-$$ f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) = g(\mathbf{x_m},\mathbf{x_n}, m - n) \tag{2} $$
+$$ f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) = g(\mathbf{x_m},\mathbf{x_n}, m - n) \tag{1} $$
 
 So $f$ should modify the original vectors in a way that when we take the product of the results, we end up getting a function that depends on the difference of the position parameters $m$ and $n$. 
 
@@ -56,11 +56,11 @@ We've also introduced a frequency parameter, $\theta$, which isn't necessary at 
 
 One question is - why are we trying out multiplication, as opposed to having $f$ be some more complicated function of $x$ and $m$? The intuition here goes back to the structure of Transformer networks - since the $\mathbf{q}$, $\mathbf{k}$, and $\mathbf{v}$ vectors are all linear transformations of the input vectors, the idea is that maybe if $f$ is a linear transformation of its input, it'll be easier for the network to learn.
 
-Now that we have a candidate for $f$, let's verify that it really does satisfy property $(2)$. Recall the dot product of two vectors represented as complex numbers is:
+Now that we have a candidate for $f$, let's verify that it really does satisfy property $(1)$. Recall the dot product of two vectors represented as complex numbers is:
 
 $$ \mathbf{x_m} \cdot \mathbf{x_n} = \Re[\mathbf{x_m}\mathbf{x_n}] $$
 
-If we apply $f$ to both \mathbf{x_m} and \mathbf{x_n}, then this becomes:
+If we apply $f$ to both $\mathbf{x_m}$ and $\mathbf{x_n}$, then this becomes:
 
 $$ \begin{align} f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) &= \Re[\mathbf{x_m}\mathbf{x_n}e^{i(m - n)\theta}] \\
 &= \Re[|\mathbf{x_m}||\mathbf{x_n}|e^{i(\theta_m - \theta_n + [m - n]\theta)}] \\
@@ -70,7 +70,7 @@ Which has the property we wanted - the result is only a function of $m - n$, and
 
 ##### From Exponentials to Sinusoidal Functions
 
-So now we have a candidate for $f$ when $\mathbf{x}$ is a complex number. What about the case where $\mathbf{x}$ isn't represented as a complex number, but as a vector of two real numbers instead? In that case, we can use the fact that multiplying a complex number by $e^i\theta$ is the same as multiplying its components by a rotation matrix:
+So now we have a candidate for $f$ when $\mathbf{x}$ is a complex number. What about the case where $\mathbf{x}$ isn't represented as a complex number, but as a vector of two real numbers instead? In that case, we can use the fact that multiplying a complex number by $e^{i\theta}$ is the same as multiplying its components by a rotation matrix:
 
 $$ \begin{pmatrix}
 \cos\theta & -\sin\theta \\
@@ -79,7 +79,7 @@ $$ \begin{pmatrix}
 
 So far we've assumed that $\mathbf{x}$ only has two dimensions. It turns out that we can easily extend this idea to the general case - we just break up the dimensions into pairs, and apply the two dimensional transformation to each pair. 
 
-This leads to another issue. Recall that the idea behind making f linear was that the network should be able to easily represent vectors at different positions. But since $f$ is defined as a multiplication by a periodic function, it'll actually lead to the same representation for points at varying distances. Making $\theta$ really large would allow the network to easily distinguish between positions closer together but not those that are farther apart, and making it small would lead to the opposite problem - positions close to one another might not lead to enough of a change in $f$ to allow the network to easily distinguish them.
+This leads to another issue. Recall that the idea behind making $f$ linear was that the network should be able to easily represent vectors at different positions. But since $f$ is defined as a multiplication by a periodic function, it'll actually lead to the same representation for points at varying distances. Making $\theta$ really large would allow the network to easily distinguish between positions closer together but not those that are farther apart, and making it small would lead to the opposite problem - positions close to one another might not lead to enough of a change in $f$ to allow the network to easily distinguish them.
 
 <div class='figure'>
     <img src="/assets/cosine.png"
