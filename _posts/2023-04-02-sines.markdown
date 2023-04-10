@@ -93,8 +93,8 @@ One way to deal with this is to use different values of $\theta$ for each pair o
 $$ f(\mathbf{x}, m) = \mathbf{x}\begin{pmatrix}
 \cos m\theta_1 & -\sin m\theta_1 & 0 & 0 & \cdots & 0 & 0 \\
 \sin m\theta_1 & \cos m\theta_1 & 0 & 0 & \cdots & 0 & 0 \\
-0 & 0 & \cos m\theta_1 & -\sin m\theta_1 & \cdots & 0 & 0 \\
-0 & 0 & \sin m\theta_1 & \cos m\theta_1 & \cdots & 0 & 0 \\
+0 & 0 & \cos m\theta_2 & -\sin m\theta_2 & \cdots & 0 & 0 \\
+0 & 0 & \sin m\theta_2 & \cos m\theta_2 & \cdots & 0 & 0 \\
 \vdots & \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
 0 & 0 & 0 & 0 & \cdots & \cos m\theta_{d/2} & -\sin m\theta_{d/2} \\
 0 & 0 & 0 & 0 & \cdots & \sin m\theta_{d/2} & \cos m\theta_{d/2}
