@@ -32,13 +32,13 @@ One shortcoming of this approach is that it doesn't account for positions - two 
 ##### Encoding Positions
 To make things simpler, let's assume that $\mathbf{x_m}$, which is some input vector that occupies position $m$, is a two dimensional vector. Then, we can represent it as a complex number:
 
-$$ \mathbf{x_m} = | \mathbf{x_m}|e^{i\theta_m} $$
+$$ x_m = |x_m|e^{i\theta_m} $$
 
-Let's define $f(\mathbf{x}, m)$ as a function that takes a vector and its position, and modifies the vector in a way that incorporates information about its position.
+Let's define $f(x, m)$ as a function that takes a vector (represented as a complex number) and its position, and modifies the vector in a way that incorporates information about its position in the input sequence.
 
 What properties would we like this function $f$ to have? Suppose that we have two vectors, one at position $m$ and one at position $n$. When we apply $f$ to both vectors to encode position information and then take the dot product of these two vectors (as part of the attention operation discussed earlier), we'd like the result to depend on the distance between the two vectors, i.e., $m - n$, and not on $m$ and $n$ themselves. So we'd like:
 
-$$ f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) = g(\mathbf{x_m},\mathbf{x_n}, m - n) \tag{1} $$
+$$ f(x_m) \cdot f(x_n) = g(x_m,x_n, m - n) \tag{1} $$
 
 So $f$ should modify the original vectors in a way that when we take the product of the results, we end up getting a function that depends on the difference of the position parameters $m$ and $n$. 
 
@@ -50,21 +50,21 @@ $$ e^me^n = e^{m+n} $$
 
 Continuing down this path - now we don't want $f$ to just multiply $\mathbf{x_m}$ by $e^m$, since that would cause the magnitude of $f$ to grow very quickly with position (i.e, with $m$). Instead, let's try multiplying by $e^{im\theta}$ since its magnitude is unity - we won't cause the magnitude of the vector to change. Our candidate $f$ is:
 
-$$ f(\mathbf{x_m}) = \mathbf{x_m}e^{im\theta} $$
+$$ f(x_m, m) = x_{m}e^{im\theta} $$
 
 We've also introduced a frequency parameter, $\theta$, which isn't necessary at this point but will turn out to be useful later.
 
 One question is - why are we trying out multiplication, as opposed to having $f$ be some more complicated function of $x$ and $m$? The intuition here goes back to the structure of Transformer networks - since the $\mathbf{q}$, $\mathbf{k}$, and $\mathbf{v}$ vectors are all linear transformations of the input vectors, the idea is that maybe if $f$ is a linear transformation of its input, it'll be easier for the network to learn.
 
-Now that we have a candidate for $f$, let's verify that it really does satisfy property $(1)$. Recall the dot product of two vectors represented as complex numbers is:
+Now that we have a candidate for $f$, let's verify that it really does satisfy property $(1)$. The dot product of two vectors represented as complex numbers is:
 
-$$ \mathbf{x_m} \cdot \mathbf{x_n} = \Re[\mathbf{x_m}\mathbf{x^\star_n}] $$
+$$ x_m \cdot x_n = \Re[x_{m}x^\star_n] $$
 
-If we apply $f$ to both $\mathbf{x_m}$ and $\mathbf{x_n}$, then this becomes:
+Where $\Re(x)$ represents the real part of $x$. If we apply $f$ to both $x_m$ and $x_n$, then this becomes:
 
-$$ \begin{align} f(\mathbf{x_m}) \cdot f(\mathbf{x_n}) &= \Re[\mathbf{x_m}\mathbf{x^\star_n}e^{i(m - n)\theta}] \\
-&= \Re[|\mathbf{x_m}||\mathbf{x_n}|e^{i(\theta_m - \theta_n + [m - n]\theta)}] \\
-&=  |\mathbf{x_m}||\mathbf{x_n}| \cos(\theta_m - \theta_n + [m - n]\theta)\end{align} $$
+$$ \begin{align} f(x_m) \cdot f(x_n) &= \Re[x_{m}x^\star_{n}e^{i(m - n)\theta}] \\
+&= \Re[|x_m||x_n|e^{i(\theta_m - \theta_n + [m - n]\theta)}] \\
+&=  |x_m||x_n| \cos(\theta_m - \theta_n + [m - n]\theta)\end{align} $$
 
 Which has the property we wanted - the result is only a function of $m - n$, and not of $m$ or $n$ by themselves.
 
