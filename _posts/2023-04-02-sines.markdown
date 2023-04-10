@@ -48,7 +48,7 @@ Note that the exponential function has a property that seems similar to what we 
 
 $$ e^me^n = e^{m+n} $$
 
-Continuing down this path - now we don't want $f$ to just multiply $\mathbf{x_m}$ by $e^m$, since that would cause the magnitude of $f$ to grow very quickly with position (i.e, with $m$). Instead, let's try multiplying by $e^{im\theta}$ since its magnitude is unity - we won't cause the magnitude of the vector to change. Our candidate $f$ is:
+Continuing down this path - now we don't want $f$ to just multiply $x_m$ by $e^m$, since that would cause the magnitude of $f$ to grow very quickly with position (i.e, with $m$). Instead, let's try multiplying by $e^{im\theta}$ since its magnitude is unity - we won't cause the magnitude of the vector to change. Our candidate $f$ is:
 
 $$ f(x_m, m) = x_{m}e^{im\theta} $$
 
