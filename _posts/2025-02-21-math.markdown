@@ -7,7 +7,7 @@ published: true
 mathjax: yes
 ---
 
-I want to argue that math will increasingly permeate our world, that the software we write will become ever more mathematical, and that software itself is a unique accelerant in the same way calculus revolutionized math.
+In this post, I’d like to make a case that math will increasingly permeate the world, that the software we write will become ever more mathematical, and that software itself is a unique accelerant in the same way calculus revolutionized math.
 
 But first, a quick detour into theoretical physics. I think it’s an early template for how math will continue to shape so many other fields.
 
