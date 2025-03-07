@@ -1,104 +1,111 @@
 ---
-title: Why Are Sines and Cosines Used For Positional Encoding?
+title: "Anatomy of an LLM: Internals of DeepSeek-V3's Attention Implementation"
 layout: default
-date: 2023-04-02
-keywords: symmetry
+date: 2025-03-06
+keywords: deepseek
 published: true
 mathjax: yes
 ---
 
-One of the earliest steps in any neural network operating on sequences is position encoding - augmenting a sequence of input vectors so that the vectors also encode information about their position in the sequence. Many of the most commonly used schemes for doing this involve adding or multiplying these vectors by sinusoidal functions, and this can be a bit surprising - at first glance, sines and cosines are unlikely to have much to do with encoding positions.
+The DeepSeek-V3 paper presents, in the section on Multi-Head Latent Attention, a fairly complex looking set of equations:
 
-This post attempts, in an elementary way, to build some intuition for why sinusoidal functions can be useful ways to represent position information. It does so in the context of Transformer networks and RoPE (Rotary Position Embedding), which happens to be the position encoding scheme used in Meta's LLaMA model.
+$$ \mathbf{c}_t^{KV} = W^{DKV}\mathbf{h}_t \tag{1} $$
 
-##### Transformers and Self-Attention
+$$ \left[\mathbf{k}_{t,1}^{C};\mathbf{k}_{t,1}^{C};...;\mathbf{k}_{t,n_h}^{C}\right] = \mathbf{k}_{t}^{C} = W^{UK}\mathbf{c}_t^{KV} \tag{2} $$
 
-Let's start with a brief (and simplified) review of the self-attention operation in Transformer networks. For each input vector $\mathbf{x}$ (which represents some token), we calculate three new vectors - the query $\mathbf{q}$, key $\mathbf{k}$, and value $\mathbf{v}$. Then, we output the following:
+$$ \mathbf{k}_t^{R} = \text{RoPE}\left( W^{KR}\mathbf{h}_t \right) \tag{3} $$
 
-$$ \mathbf{x_{out}} = (\mathbf{q}\cdot\mathbf{k_1})\mathbf{v_1} + (\mathbf{q}\cdot\mathbf{k_2})\mathbf{v_2} + \ldots + (\mathbf{q}\cdot\mathbf{k_n})\mathbf{v_n} $$
+$$ \mathbf{k}_{t,i} = \left[ \mathbf{k}_{t,i}^C;\mathbf{k}_t^R \right] \tag{4} $$
 
-The idea is that the dot product between two vectors should give us some measure of how similar or interesting those vectors are to each other. So for some input vector $\mathbf{x}$, we first calculate a $\mathbf{q}$, and then calculate dot products with all other key vectors $\mathbf{k_1}, \mathbf{k_2}, \cdots, \mathbf{k_n}$ in the sequence to determine to what extent those vectors should influence the output we generate for $\mathbf{x}$. Finally, instead of just directly multiplying the results of the dot products by the $\mathbf{x_n}$ vectors, we multiply by their respective $\mathbf{v}$ vectors instead.
+$$ \left[\mathbf{v}_{t,1}^{C};\mathbf{v}_{t,1}^{C};...;\mathbf{v}_{t,n_h}^{C}\right] = \mathbf{v}_{t}^{C} = W^{UV}\mathbf{c}_t^{KV} \tag{5} $$
 
-<div class='figure'>
-    <img src="/assets/attention.png"
-         style="width: 50%; height: 50%; display: block; margin: 0 auto;"/>
-    <div class='caption'>
-        <span class='caption-label'>Figure 1.</span> The attention operation takes an $\mathbf{x}$ and mixes in information from other input vectors using dot products between auxiliary $\mathbf{q}$, $\mathbf{k}$, $\mathbf{v}$ vectors.
-    </div>
-</div>
+$$ \mathbf{o}_{t,i} = \sum_{j=1}^{t}\text{Softmax}_j\left( \frac{\mathbf{q}_{t,i}\mathbf{k}_{j,i}}{\sqrt{d_h+d^R_h}} \right)\mathbf{v}_{j,i}^C \tag{6} $$
 
-One shortcoming of this approach is that it doesn't account for positions - two vectors will have the same dot product, regardless of how close they are to each other in the input sequence. What we want is a way to modify each vector in a way that incorporates information about its position. 
+This post attempts to break these equations down to show where they're coming from, and hopefully provide some helpful intuition. 
 
-##### Encoding Positions
-To make things simpler, let's assume that $\mathbf{x_m}$, which is some input vector that occupies position $m$, is a two dimensional vector. Then, we can represent it as a complex number:
+#### Overview
 
-$$ x_m = |x_m|e^{i\theta_m} $$
+DeepSeek builds on a standard transformer architecture, where given a series of input vectors $\mathbf{h}_t$, which each vector representing a token, we want to calculate three vectors: the key $\mathbf{k}$, query $\mathbf{q}, and value $\mathbf{v}$, using a set of weight matrices. We then apply the attention operation, which involves taking the dot product between the query of one token with the value of other tokens to get an idea of how "relevant" the tokens are to each other. Finally, we scale the result by the value.
 
-Let's define $f(x, m)$ as a function that takes a vector (represented as a complex number) and its position, and modifies the vector in a way that incorporates information about its position in the input sequence.
+So naively, we'd start by taking the input token, $\mathbf{h}_t$, and calculating $\mathbf{q}_t$, $\mathbf{k}_t$, $\mathbf{v}_t$:
 
-What properties would we like this function $f$ to have? Suppose that we have two vectors, one at position $m$ and one at position $n$. When we apply $f$ to both vectors to encode position information and then take the dot product of these two vectors (as part of the attention operation discussed earlier), we'd like the result to depend on the distance between the two vectors, i.e., $m - n$, and not on $m$ and $n$ themselves. So we'd like:
+$$ \mathbf{q}_t = W^Q\mathbf{h}_t $$
 
-$$ f(x_m) \cdot f(x_n) = g(x_m,x_n, m - n) \tag{1} $$
+$$ \mathbf{k}_t = W^K\mathbf{h}_t $$
 
-So $f$ should modify the original vectors in a way that when we take the product of the results, we end up getting a function that depends on the difference of the position parameters $m$ and $n$. 
+$$ \mathbf{v}_t = W^V\mathbf{h}_t $$
 
-##### Exponentials
+DeepSeek makes a few modifications to this process.
 
-Note that the exponential function has a property that seems similar to what we want:
+#### Low-Rank Joint Compression
 
-$$ e^me^n = e^{m+n} $$
+First, it leverages Low-Rank Joint Compression to reduce the size of the matrices involved. So instead of using a single matrix $W^K$, it decomposes the matrix into a product of two smaller matrices:
 
-Continuing down this path - now we don't want $f$ to just multiply $x_m$ by $e^m$, since that would cause the magnitude of $f$ to grow very quickly with position (i.e, with $m$). Instead, let's try multiplying by $e^{im\theta}$ since its magnitude is unity - we won't cause the magnitude of the vector to change. Our candidate $f$ is:
+$$ W^K = W^{UK}W^{DK} $$
 
-$$ f(x_m, m) = x_{m}e^{im\theta} $$
+So instead of just multiplying the input by $W^K$, we first multiply the input token $\mathbf{h}_t$ by the down-projection matrix $W^{DK}$, which reduces the dimension of the input, and then we apply an up-projection matrix $W^{UK}$ to restore the original dimension. 
 
-We've also introduced a frequency parameter, $\theta$, which isn't necessary at this point but will turn out to be useful later.
+We also combine the key and value matrices ($W^K$ and $W^V$) into a single matrix. Putting this together, we get the first equation:
 
-One question is - why are we trying out multiplication, as opposed to having $f$ be some more complicated function of $x$ and $m$? The intuition here goes back to the structure of Transformer networks - since the $\mathbf{q}$, $\mathbf{k}$, and $\mathbf{v}$ vectors are all linear transformations of the input vectors, the idea is that maybe if $f$ is a linear transformation of its input, it'll be easier for the network to learn.
+$$ \mathbf{c}_t^{KV} = W^{DKV}\mathbf{h}_t \tag{1} $$
 
-Now that we have a candidate for $f$, let's verify that it really does satisfy property $(1)$. The dot product of two vectors represented as complex numbers is:
+So we take the input token, and multiply by a combined key and value down-projection matrix $W^DKV$ to get $\mathbf{c}_t^{KV}$, which is a compressed combination of the key and value vectors.
 
-$$ x_m \cdot x_n = \Re[x_{m}x^\star_n] $$
+Next, we apply the up-projection matrices for keys and values, which give us equations $(2)$ and $(5)$:
 
-Where $\Re(x)$ represents the real part of $x$. If we apply $f$ to both $x_m$ and $x_n$, then this becomes:
+$$ \left[\mathbf{k}_{t,1}^{C};\mathbf{k}_{t,1}^{C};...;\mathbf{k}_{t,n_h}^{C}\right] = \mathbf{k}_{t}^{C} = W^{UK}\mathbf{c}_t^{KV} \tag{2} $$
+$$ \left[\mathbf{v}_{t,1}^{C};\mathbf{v}_{t,1}^{C};...;\mathbf{v}_{t,n_h}^{C}\right] = \mathbf{v}_{t}^{C} = W^{UV}\mathbf{c}_t^{KV} \tag{5} $$
 
-$$ \begin{align} f(x_m) \cdot f(x_n) &= \Re[x_{m}x^\star_{n}e^{i(m - n)\theta}] \\
-&= \Re[|x_m||x_n|e^{i(\theta_m - \theta_n + [m - n]\theta)}] \\
-&=  |x_m||x_n| \cos(\theta_m - \theta_n + [m - n]\theta)\end{align} $$
+#### Multi-Head Attention
 
-Which has the property we wanted - the result is only a function of $m - n$, and not of $m$ or $n$ by themselves.
+Note that the up-projection matrix is sized so that instead of getting a single key vector as output, we get a whole series of them - $n_h$ of them specifically. This is part of the multi-head attention mechanism, where instead of calculating $\mathbf{q}$, $\mathbf{k}$, and $\mathbf{v}$ once for each input token, we do it multiple times in parallel, and then combine the result in the end.
 
-##### From Exponentials to Sinusoidal Functions
+#### Position Encoding
 
-So now we have a candidate for $f$ when $\mathbf{x}$ is a complex number. What about the case where $\mathbf{x}$ isn't represented as a complex number, but as a vector of two real numbers instead? In that case, we can use the fact that multiplying a complex number by $e^{i\theta}$ is the same as multiplying its components by a rotation matrix:
+Now we move on to positional encoding. The idea is that we’d like the queries and keys to encode some information about the positions of the input tokens. DeepSeek uses RoPE, which we can define as a function that takes in an input token along with its position, and modifies it in a way that incorporates its position:
 
-$$ \begin{pmatrix}
-\cos\theta & -\sin\theta \\
-\sin\theta & \cos\theta
-\end{pmatrix} $$
+$$ \mathbf{k}_t^{R} = \text{RoPE}\left( W^{KR}\mathbf{h}_t \right) \tag{3} $$
 
-So far we've assumed that $\mathbf{x}$ only has two dimensions. It turns out that we can easily extend this idea to the general case - we just break up the dimensions into pairs, and apply the two dimensional transformation to each pair. 
+Note that we don't apply RoPE to the keys calculated in equation $(2)$. Instead, a separate matrix $W^{KR}$ is applied to create a key vector $\mathbf{k}_t^{R}$ that will be position-encoded. We then concatenate the position-encoded key vectors to the key vectors from equation $(2)$, which gives us equation $(4)$:
 
-This leads to another issue. Recall that the idea behind making $f$ linear was that the network should be able to easily represent vectors at different positions. But since $f$ is defined as a multiplication by a periodic function, it'll actually lead to the same representation for points at varying distances. Making $\theta$ really large would allow the network to easily distinguish between positions closer together but not those that are farther apart, and making it small would lead to the opposite problem - positions close to one another might not lead to enough of a change in $f$ to allow the network to easily distinguish them.
+$$ \mathbf{k}_{t,i} = \left[ \mathbf{k}_{t,i}^C;\mathbf{k}_t^R \right] \tag{4} $$
 
-<div class='figure'>
-    <img src="/assets/cosine.png"
-         style="width: 80%; height: 80%; display: block; margin: 0 auto;"/>
-    <div class='caption'>
-        <span class='caption-label'>Figure 2.</span> Transformations using sinusoidal functions will have the same representation for different distances.    </div>
-</div>
+Note that there is no position encoding applied to the value vectors. So both queries and keys have position encoding applied, but not the values.
 
-One way to deal with this is to use different values of $\theta$ for each pair of dimensions. So some dimensions will encode shorter distance information, and some will encode longer distance information. Putting it all together, we get the following transformation:
+#### Implementation
 
-$$ f(\mathbf{x}, m) = \mathbf{x}\begin{pmatrix}
-\cos m\theta_1 & -\sin m\theta_1 & 0 & 0 & \cdots & 0 & 0 \\
-\sin m\theta_1 & \cos m\theta_1 & 0 & 0 & \cdots & 0 & 0 \\
-0 & 0 & \cos m\theta_2 & -\sin m\theta_2 & \cdots & 0 & 0 \\
-0 & 0 & \sin m\theta_2 & \cos m\theta_2 & \cdots & 0 & 0 \\
-\vdots & \vdots & \vdots & \vdots & \ddots & \vdots & \vdots \\
-0 & 0 & 0 & 0 & \cdots & \cos m\theta_{d/2} & -\sin m\theta_{d/2} \\
-0 & 0 & 0 & 0 & \cdots & \sin m\theta_{d/2} & \cos m\theta_{d/2}
-\end{pmatrix} $$
+The implementation is fairly straightforward, except there's a slight change of terminology. Instead of using $U$ to label up-projection matrices and $D$ to label down-projection matrices, $a$ and $b$ are used instead. So we start by declaring these matrices $W^Q_a$ and $W^Q_b$ for the query calculation:
 
-In summary - fairly simple considerations around properties we'd like the dot product to have (i.e., only being a function of $m - n$) and a preference for linear transformations leads to an effective positional embedding scheme that uses sinusoidal functions and generalizes to any number of dimensions - which is quite remarkable.
+```
+self.wq_a = Linear(self.dim, self.q_lora_rank)
+self.q_norm = RMSNorm(self.q_lora_rank)
+self.wq_b = ColumnParallelLinear(self.q_lora_rank, self.n_heads * self.qk_head_dim)
+```
+
+These transformations are then applied to the input:
+
+```
+q = self.wq_b(self.q_norm(self.wq_a(x)))
+q = q.view(bsz, seqlen, self.n_local_heads, self.qk_head_dim)
+```
+
+This gives us a tensor with dimensions $[B, T, H * D]$, which is then re-shaped into $[B, T, H, D]$. This splits the embedding dimension into two parts, with RoPE only being applied to one part. The results are then concatenated to form the $\mathbf{q}$ tensor:
+```
+q_nope, q_pe = torch.split(q, [self.qk_nope_head_dim, self.qk_rope_head_dim], dim=-1)
+q_pe = apply_rotary_emb(q_pe, freqs_cis)
+q = torch.cat([q_nope, q_pe], dim=-1)
+```
+
+Next, we compute the key and value tensors. These are computed together, using a single set set of $W^KV$ matrices:
+```
+self.wkv_a = Linear(self.dim, self.kv_lora_rank + self.qk_rope_head_dim)
+self.kv_norm = RMSNorm(self.kv_lora_rank)
+self.wkv_b = ColumnParallelLinear(self.kv_lora_rank, self.n_heads * (self.qk_nope_head_dim + self.v_head_dim))
+
+kv = self.wkv_a(x)
+kv, k_pe = torch.split(kv, [self.kv_lora_rank, self.qk_rope_head_dim], dim=-1)
+k_pe = apply_rotary_emb(k_pe.unsqueeze(2), freqs_cis)
+```
+
+First, $W^{KV}_a$ is applied to reduce the input dimension to `kv_lora_rank + qk_rope_head_dim`. Then, we extract out a subset of the input dimensions, of size `qk_rope_head_dim`, to apply RoPE encoding to. The leftover dimensions, of size `kv_lora_rank`, are then normalized and up-projected using $W^{KV}_b$ to a dimension of `qk_nope_head_dim + v_head_dim`, and then finally split out into $\mathbf{k}$ and $\mathbf{v}$ components. K is composed of one part that had positional encoding applied to it, and another that hadn’t. 
 
