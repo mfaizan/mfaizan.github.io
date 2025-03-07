@@ -1,5 +1,5 @@
 ---
-title: Anatomy of an LLM: Internals of DeepSeek-V3's Attention Implementation
+title: "Anatomy of an LLM: Internals of DeepSeek-V3's Attention Implementation"
 layout: default
 date: 2025-03-06
 keywords: deepseek
