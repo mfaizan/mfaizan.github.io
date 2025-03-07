@@ -10,12 +10,16 @@ mathjax: yes
 The DeepSeek-V3 paper presents, in the section on Multi-Head Latent Attention, a fairly complex looking set of equations:
 
 $$ \mathbf{c}_t^{KV} = W^{DKV}\mathbf{h}_t \tag{1} $$
+
 $$ \left[\mathbf{k}_{t,1}^{C};\mathbf{k}_{t,1}^{C};...;\mathbf{k}_{t,n_h}^{C}\right] = \mathbf{k}_{t}^{C} = W^{UK}\mathbf{c}_t^{KV} \tag{2} $$
+
 $$ \mathbf{k}_t^{R} = \text{RoPE}\left( W^{KR}\mathbf{h}_t \right) \tag{3} $$
+
 $$ \mathbf{k}_{t,i} = \left[ \mathbf{k}_{t,i}^C;\mathbf{k}_t^R \right] \tag{4} $$
+
 $$ \left[\mathbf{v}_{t,1}^{C};\mathbf{v}_{t,1}^{C};...;\mathbf{v}_{t,n_h}^{C}\right] = \mathbf{v}_{t}^{C} = W^{UV}\mathbf{c}_t^{KV} \tag{5} $$
 
-$$ \mathbf{o}_{t,i} = \sum_{j=1}^{t}\text{Softmax}_j\left( \frac{\mathbf{q}_{t,i}\mathbf{k}_{j,i}}{\sqrt{d_h+d^R_h}} \right)\mathbf{v}_{j,i}^C $$
+$$ \mathbf{o}_{t,i} = \sum_{j=1}^{t}\text{Softmax}_j\left( \frac{\mathbf{q}_{t,i}\mathbf{k}_{j,i}}{\sqrt{d_h+d^R_h}} \right)\mathbf{v}_{j,i}^C \tag{6} $$
 
 This post attempts to break these equations down to show where they're coming from. Given a series of input vectors $\mathbf{h}_t$, which each vector representing a token, we want to calculate three vectors: the key, query, and value, using a set of weight matrices. We then apply the attention operation, which involves taking the dot product between the query of one token with the value of other tokens to get an idea of how "relevant" the tokens are to each other. Finally, we scale the result by the value.
 
