@@ -1,7 +1,7 @@
 ---
 title: Anatomy of an LLM: Internals of DeepSeek-V3's Attention Implementation
 layout: default
-date: 2023-03-05
+date: 2023-03-06
 keywords: deepseek
 published: true
 mathjax: yes
