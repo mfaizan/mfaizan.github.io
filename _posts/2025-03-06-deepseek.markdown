@@ -25,7 +25,7 @@ This post attempts to break these equations down to show where they're coming fr
 
 ##### Overview
 
-DeepSeek builds on the standard transformer architecture, where given a series of input vectors $\mathbf{h}_t$, which each vector representing a token, we want to calculate three vectors: the key $\mathbf{k}$, query $\mathbf{q}, and value $\mathbf{v}$, using a set of weight matrices. We then apply the attention operation, which involves taking the dot product between the query of one token with the value of other tokens to get an idea of how "relevant" the tokens are to each other. Finally, we scale the result by the value.
+DeepSeek builds on the standard transformer architecture, where given a series of input vectors $\mathbf{h}_t$, which each vector representing a token, we want to calculate three vectors: the key $\mathbf{k}$, query $\mathbf{q}$, and value $\mathbf{v}$, using a set of weight matrices. We then apply the attention operation, which involves taking the dot product between the query of one token with the value of other tokens to get an idea of how "relevant" the tokens are to each other. Finally, we scale the result by the value.
 
 Typically, we’d start by taking the input token, $\mathbf{h}_t$, and calculating $\mathbf{q}_t$, $\mathbf{k}_t$, $\mathbf{v}_t$:
 
@@ -49,9 +49,9 @@ We also combine the key and value matrices ($W^K$ and $W^V$) into a single matri
 
 $$ \mathbf{c}_t^{KV} = W^{DKV}\mathbf{h}_t \tag{1} $$
 
-So we take the input token, and multiply by a combined key and value down-projection matrix $W^DKV$ to get $\mathbf{c}_t^{KV}$, which is a compressed combination of the key and value vectors.
+So we take the input token, and multiply by a combined key and value down-projection matrix $W^{DKV}$ to get $\mathbf{c}_t^{KV}$, which is a compressed combination of the key and value vectors.
 
-Next, we apply the up-projection matrices for keys and values, which give us equations $(2)$ and $(5)$:
+Next, we apply the up-projection matrices for keys and values to $\mathbf{c}_t^{KV}$, which give us equations $(2)$ and $(5)$:
 
 $$ \left[\mathbf{k}_{t,1}^{C};\mathbf{k}_{t,1}^{C};...;\mathbf{k}_{t,n_h}^{C}\right] = \mathbf{k}_{t}^{C} = W^{UK}\mathbf{c}_t^{KV} \tag{2} $$
 $$ \left[\mathbf{v}_{t,1}^{C};\mathbf{v}_{t,1}^{C};...;\mathbf{v}_{t,n_h}^{C}\right] = \mathbf{v}_{t}^{C} = W^{UV}\mathbf{c}_t^{KV} \tag{5} $$
@@ -100,7 +100,7 @@ q_pe = apply_rotary_emb(q_pe, freqs_cis)
 q = torch.cat([q_nope, q_pe], dim=-1)
 ```
 
-Next, we compute the key and value tensors. These are computed together, using a single set set of $W^KV$ matrices:
+Next, we compute the key and value tensors. These are computed together, using a single set set of $W^{KV}$ matrices:
 ```
 self.wkv_a = Linear(self.dim, self.kv_lora_rank + self.qk_rope_head_dim)
 self.kv_norm = RMSNorm(self.kv_lora_rank)
@@ -116,7 +116,7 @@ kv = self.wkv_a(x)
 kv, k_pe = torch.split(kv, [self.kv_lora_rank, self.qk_rope_head_dim], dim=-1)
 k_pe = apply_rotary_emb(k_pe.unsqueeze(2), freqs_cis)
 ```
-First, $W_{KV}a$ is applied to reduce the input dimension to `kv_lora_rank + qk_rope_head_dim`. Next, we extract out a subset of size `qk_rope_head_dim` to apply RoPE encoding to. Then:
+First, $W_a^{KV}$ is applied to reduce the input dimension to `kv_lora_rank + qk_rope_head_dim`. Next, we extract out a subset of size `qk_rope_head_dim` to apply RoPE encoding to. Then:
 ```
 kv = self.wkv_b(self.kv_norm(kv))
 kv = kv.view(bsz, seqlen, self.n_local_heads, self.qk_nope_head_dim + self.v_head_dim)
