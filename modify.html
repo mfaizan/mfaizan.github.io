@@ -1,50 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Modify</title>
+  <meta charset="utf-8">
+  <title>Tidy Viewer</title>
 </head>
 <body>
-  <h2>Modify</h2>
-  <input type="text" id="urlInput" placeholder="Enter URL" style="width: 400px;">
-  <button onclick="load()">Load</button>
+  <label>URL 
+    <input id="urlInput" size="60"
+           value="https://archive.is/GR3A2">
+  </label>
+  <label>Div ID to remove 
+    <input id="divIdInput" size="15" value="HEADER">
+  </label>
+  <button id="loadBtn">Load</button>
 
   <script>
-    async function load() {
-      const url = document.getElementById("urlInput").value.trim();
-      const divIdToRemove = "HEADER";               // ID of div to remove
+    document.getElementById('loadBtn')
+            .addEventListener('click', loadAndReplace);
 
-      if (!url) {
-        alert("Please enter a valid URL.");
-        return;
-      }
+    async function loadAndReplace () {
+      const url   = document.getElementById('urlInput').value.trim();
+      const divId = document.getElementById('divIdInput').value.trim();
+      if (!url) { alert('Enter a URL'); return; }
 
       try {
-        const response = await fetch(url);
-        const html = await response.text();
+        /* 1 — fetch */
+        const res  = await fetch(url);      // CORS must allow
+        let   html = await res.text();
 
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
+        /* 2 — strip existing <base> and inject our own in the string */
+        html = html.replace(/<base[^>]*>/gi, '');
+        const baseHref = new URL(url).href;
+        html = html.replace(
+          /<head([^>]*)>/i,
+          m => m + `<base href="${baseHref}">`
+        );
 
-        // Add <base> tag to fix relative links
-        const base = doc.createElement("base");
-        base.href = new URL(url).href; // Full URL, not just origin
-        doc.head.prepend(base);
+        /* 3 — parse */
+        const doc = new DOMParser()
+                      .parseFromString(html, 'text/html');
 
-        // Remove the specified div
-        const targetDiv = doc.getElementById(divIdToRemove);
-        if (targetDiv) {
-          targetDiv.remove();
+        /* 4 — remove the chosen DIV */
+        if (divId) {
+          const gone = doc.getElementById(divId);
+          if (gone) gone.remove();
         }
 
-        // Replace current page with modified content
-        document.open();
-        document.write(doc.documentElement.outerHTML);
-        document.close();
+        /* ---------- sync HEAD first ---------- */
+        // wipe current head (keep the charset meta so Safari stays happy)
+        const keepMeta = document.head.querySelector('meta[charset]');
+        document.head.innerHTML = keepMeta ? keepMeta.outerHTML : '';
 
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to load the page. Check the console for details.");
+        // copy every <head> child (link, style, meta, title, plus <base>)
+        Array.from(doc.head.children).forEach(el => {
+          // avoid executing scripts twice
+          if (el.tagName.toLowerCase() === 'script') return;
+          document.head.appendChild(el.cloneNode(true));
+        });
+
+        /* 5 — swap BODY */
+        document.body.innerHTML = doc.body.innerHTML;
+
+        /* 6 — show the real article URL in the address bar */
+        // history.replaceState(null, '', url);
+
+      } catch (err) {
+        console.error(err);
+        alert('Could not load or display that page (see console).');
       }
     }
   </script>
