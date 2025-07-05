@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Modify</title>
+</head>
+<body>
+  <h2>Modify</h2>
+  <input type="text" id="urlInput" placeholder="Enter URL" style="width: 400px;">
+  <button onclick="load()">Load</button>
+
+  <script>
+    async function load() {
+      const url = document.getElementById("urlInput").value.trim();
+      const divIdToRemove = "HEADER";               // ID of div to remove
+
+      if (!url) {
+        alert("Please enter a valid URL.");
+        return;
+      }
+
+      try {
+        const response = await fetch(url);
+        const html = await response.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        // Add <base> tag to fix relative links
+        const base = doc.createElement("base");
+        base.href = new URL(url).href; // Full URL, not just origin
+        doc.head.prepend(base);
+
+        // Remove the specified div
+        const targetDiv = doc.getElementById(divIdToRemove);
+        if (targetDiv) {
+          targetDiv.remove();
+        }
+
+        // Replace current page with modified content
+        document.open();
+        document.write(doc.documentElement.outerHTML);
+        document.close();
+
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to load the page. Check the console for details.");
+      }
+    }
+  </script>
+</body>
+</html>
